@@ -1,17 +1,15 @@
 <template>
-  <div class="home">
-    <chessboard/>
-  </div>
+  <v-container>
+    <game-board></game-board>
+  </v-container>
 </template>
 
 <script>
-// @ is an alias to /src
-import {chessboard} from "vue-chessboard";
+  import GameBoard from '../components/GameBoard' 
 
-export default {
-  name: "home",
-  components: {
-    chessboard
+  export default {
+    components: {
+      GameBoard
+    }
   }
-};
 </script>
