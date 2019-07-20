@@ -1,8 +1,22 @@
 <template>
-  <div id="app">
+  <div>
+    <Header/>
+    <div id="app">
     <router-view />
   </div>
+  <Footer/>
+  </div>
 </template>
+<script>
+import Header from '@/components/Header.vue'
+import Footer from '@/components/Footer.vue'
+export default {
+  components: {
+    Header,
+    Footer
+  }
+}
+</script>
 
 <style>
   *, html {
@@ -11,12 +25,5 @@
   }
   .black, .white, .blue {
     background-color: inherit !important;
-  }
-  .cg-board-wrap {
-    width: 500px !important;
-    height: 500px !important;
-  }
-  .cg-board-wrap coords {
-    font-size: 20px !important;
   }
 </style>
