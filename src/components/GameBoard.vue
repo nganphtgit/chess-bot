@@ -5,9 +5,15 @@
         </v-flex>
         <v-flex xs5 offset-xs1>
             <v-layout column class="justify-space-between">
-                <v-card-text>
+                <v-layout row>
+                    <v-flex xs6>
+                    <v-card-text>
                     <h3 class="title">Nước cờ</h3>
                 </v-card-text>
+                    </v-flex>
+                    <v-spacer></v-spacer>
+                <v-btn class="xs12 mt-2 px-3">Bắt đầu</v-btn>
+                </v-layout>
                 <div class="move-history-content">
               <div v-for="(item, index) in moveHistory" :key="index">
                 <div class="index">{{ item.index }}</div>
@@ -39,7 +45,7 @@
             </v-btn-toggle>
             </div>
             <div class="game-information mt-4"></div>
-            <v-btn class="xs12 mt-2">Bắt đầu</v-btn>  
+              
             </v-layout>
         </v-flex>
     </v-layout>
