@@ -4,7 +4,10 @@
             <chessboard :fen="currentFen"  @onChangePiece="getFen"/>
         </v-flex>
         <v-flex xs5 offset-xs1>
-            <v-layout column>
+            <v-layout column class="justify-space-between">
+                <v-card-text>
+                    <h3 class="title">Nước cờ</h3>
+                </v-card-text>
                 <div class="move-history-content">
               <div v-for="(item, index) in moveHistory" :key="index">
                 <div class="index">{{ item.index }}</div>
@@ -20,7 +23,23 @@
                   @click="loadFen(item.blackMove.fen, $event)"
                 >{{ item.blackMove.move }}</div>
               </div>
+              <v-btn-toggle v-model="toggle_exclusive" class="xs12 mt-2">
+              <v-btn flat>
+                <v-icon>fast_rewind</v-icon>
+              </v-btn>
+              <v-btn flat>
+                <v-icon>skip_previous</v-icon>
+              </v-btn>
+              <v-btn flat>
+                <v-icon>skip_next</v-icon>
+              </v-btn>
+              <v-btn flat>
+                <v-icon>fast_forward</v-icon>
+              </v-btn>
+            </v-btn-toggle>
             </div>
+            <div class="game-information mt-4"></div>
+            <v-btn class="xs12 mt-2">Bắt đầu</v-btn>  
             </v-layout>
         </v-flex>
     </v-layout>
@@ -62,4 +81,11 @@ export default {
 
 <style scoped src="@/assets/style/chessboard.css">
 
+</style>
+<style scoped>
+.v-btn-toggle {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
 </style>
