@@ -6,6 +6,7 @@
         :fen="currentFen"
         :orientation="userColor"
         :move="move"
+        :status="gameStatus"
         @onMove="showInfo"
       />
     </v-flex>
@@ -208,7 +209,8 @@ export default {
       userColor: "white",
       isPlayerWin: false,
       currentGameResult: '',
-      pgn: ''
+      pgn: '',
+      gameStatus: ''
     };
   },
   watch: {
@@ -245,6 +247,7 @@ export default {
       const {result} = await matchRepository.createMatch(data)
     },
     showInfo(data) {
+      this.gameStatus = 'playing'
       this.moves = data.hisMoves;
       const black = "black";
       let moveHistory = this.moveHistory;
@@ -324,7 +327,7 @@ export default {
       this.turn = "white";
       switch (this.colorPicker) {
         case 0:
-          this.userColor = Math.random() === 0 ? 'white' : 'black';
+          this.userColor = Math.round(Math.random()) === 0 ? 'white' : 'black';
           break;
         case 1:
           this.userColor = "white";
@@ -346,6 +349,7 @@ export default {
         result: null
       };
       this.gameHistory.push(this.currentGame);
+      this.gameStatus = 'new'
     },
     countDownTime(time) {
       const timeArr = time.split(":");

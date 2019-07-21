@@ -43,11 +43,16 @@ export default {
     viewOnly: {
       type: Boolean,
       default: false
+    },
+    status: {
+      type: String,
+      default: 'playing'
     }
   },
   data() {
     return {
       hisMoves: '',
+      defaultFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
     }
   },
   watch: {
@@ -58,7 +63,15 @@ export default {
     orientation: function (orientation) {
       console.log('watch orientation________', orientation)
       this.orientation = orientation
+      this.game.reset()
       this.loadPosition()
+    },
+    status: function(startus) {
+      this.startus = startus
+      if (this.startus === 'new') {
+        this.game.reset()
+        this.loadPosition()
+      }
     },
     showThreats: function (st) {
       this.showThreats = st
