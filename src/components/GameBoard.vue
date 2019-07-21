@@ -29,25 +29,26 @@
         <div class="move-history-content">
           <div v-for="(item, index) in moveHistory" :key="index">
             <div class="index">{{ item.index }}</div>
-            <div :id="item.whiteMove.moveCount" class="move">{{ item.whiteMove.move }}</div>
+            <div :id="item.whiteMove.moveCount" @click="loadFen(item.whiteMove.fen, item.whiteMove.moveCount, $event)" class="move">{{ item.whiteMove.move }}</div>
             <div
               v-if="item.blackMove"
               :id="item.blackMove.moveCount"
               class="move"
+              @click="loadFen(item.blackMove.fen, item.blackMove.moveCount, $event)"
             >{{ item.blackMove.move }}</div>
           </div>
         </div>
         <div class="xs12 btn-group-move">
-          <v-btn flat>
+          <v-btn flat :disabled="isStart || currentMove === 1" @click="turnToFirstMove">
             <v-icon>fast_rewind</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn flat :disabled="isStart || currentMove === 1" @click="turnToPreviousMove">
             <v-icon>skip_previous</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn flat :disabled="isStart || currentMove === totalMove" @click="turnToNextMove">
             <v-icon>skip_next</v-icon>
           </v-btn>
-          <v-btn flat>
+          <v-btn flat :disabled="isStart || currentMove === totalMove" @click="turnToLastMove">
             <v-icon>fast_forward</v-icon>
           </v-btn>
         </div>
@@ -267,8 +268,13 @@ export default {
         }
         this.pgn = data.pgn
         this.saveData()
+        this.gameStatus = 'end_game'
       }
-      this.turn = data.turn;
+      if (data.turn === undefined) {
+        this.turn = this.turn === 'white' ? 'black' : 'white'
+      } else {
+        this.turn = data.turn;
+      }
       this.totalMove++;
       if (this.turn === black) {
         const newTurn = {
@@ -302,10 +308,6 @@ export default {
         currentMove.classList.add("current-move");
         currentMove.parentNode.parentNode.scrollTop = currentMove.offsetTop;
       }
-    },
-    loadFen(fen) {
-      console.log(fen);
-      this.currentFen = fen;
     },
     resetBoard() {
       this.moveHistory = [];
@@ -402,6 +404,58 @@ export default {
             : (self.move = match[1] + match[2] + match[3]);
         }
       };
+    },
+    turnToNextMove() {
+      if (this.currentMove !== this.totalMove) {
+        this.currentMove++
+        const divTarget = this.getMoveByIdNumber()
+        divTarget.click()
+        this.updateMove = false
+        this.setCurrentMove()
+      }
+    },
+    turnToLastMove() {
+      if (this.currentMove !== this.totalMove) {
+        this.currentMove = this.totalMove
+        const divTarget = this.getMoveByIdNumber()
+        divTarget.click()
+        this.updateMove = false
+        this.setCurrentMove()
+      }
+    },
+    turnToPreviousMove() {
+      if (this.currentMove > 1) {
+        this.currentMove--
+        console.log(this.currentMove)
+        const divTarget = this.getMoveByIdNumber()
+        console.log(divTarget)
+        divTarget.click()
+        this.updateMove = false
+        this.setCurrentMove()
+      }
+    },
+    turnToFirstMove() {
+      if (this.currentMove > 1) {
+        this.currentMove = 1
+        const divTarget = this.getMoveByIdNumber()
+        divTarget.click()
+        this.updateMove = false
+        this.setCurrentMove()
+      }
+    },
+    getMoveByIdNumber() {
+      return document.getElementById('move-' + this.currentMove)
+    },
+    getIdNumberOfMove(divTarget) {
+      return parseInt(divTarget.id.replace('move-', ''))
+    },
+    loadFen(fen, currentMove, event) {
+      if (this.gameStatus === 'end_game') {
+        this.currentFen = fen
+        console.log(this.currentFen)
+        this.currentMove = parseInt(currentMove.replace('move-', ''))
+        console.log(this.currentMove)
+      }
     }
   },
   created() {

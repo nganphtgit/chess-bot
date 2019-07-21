@@ -58,7 +58,9 @@ export default {
   watch: {
     fen: function (newFen) {
       this.fen = newFen
-      this.loadPosition()
+      this.board.set({
+        fen: this.fen
+      })
     },
     orientation: function (orientation) {
       console.log('watch orientation________', orientation)
@@ -209,7 +211,7 @@ export default {
       threats[`legal_${color}`] = uniques(moves.map(x => x.from + x.to)).length // promotions count as 4 moves. This remove those duplicates moves.
       threats[`checks_${color}`] = checks
       threats[`threat_${color}`] = captures
-      threats[`turn`] = color
+      threats[`turn`] = this.toColor()
       return threats
     },
     loadPosition () { // set a default value for the configuration object itself to allow call to loadPosition()
