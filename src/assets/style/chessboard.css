@@ -15,10 +15,23 @@
   position: relative;
 }
 .move-history-content {
-  height: 220px;
+  height: 180px;
 }
 .game-information {
-  height: 150px;
+  height: 160px;
+}
+.game-information-item div {
+  padding: 10px;
+  font-size: 1.2rem;
+}
+.game-details {
+  background-color: #BCD1D8;
+}
+.game-result {
+  background-color: #9DB9CC;
+}
+.game-color {
+  font-family: myFirstFont;
 }
 .move-history-content div {
   flex-wrap: wrap;
@@ -29,8 +42,6 @@
 }
 /* for learning-board ============================*/
 .v-btn {
-  height: 30px;
-  min-width: 20%;
   margin: 0px;
 }
 .main-button {

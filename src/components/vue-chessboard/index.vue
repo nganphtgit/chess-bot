@@ -39,6 +39,15 @@ export default {
     botTurn: {
       type: String,
       default: 'black'
+    },
+    viewOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      hisMoves: '',
     }
   },
   watch: {
@@ -60,6 +69,12 @@ export default {
     move: function (move) {
       this.move = move
       this.loadMove()
+    },
+    viewOnly: function(newView) {
+      this.viewOnly = newView
+      this.board.set({
+        viewOnly: this.viewOnly
+      })    
     }
   },
   methods: {
@@ -120,9 +135,11 @@ export default {
     },
     changeTurn () {
       return (orig, dest, metadata) => {
+        this.hisMoves += ' ' + orig + dest
         console.log("Change turm " + orig + "," + dest + "," + metadata)
         if (this.isPromotion(orig, dest)) {
           this.promoteTo = this.onPromotion()
+          this.hisMoves += this.promoteTo
         }
         this.game.move({from: orig, to: dest, promotion: this.promoteTo}) // promote to queen for simplicity
         this.board.set({
@@ -145,7 +162,10 @@ export default {
       let threats = this.countThreats(this.toColor()) || {}
       threats['history'] = this.game.history()
       threats['fen'] = this.game.fen()
-      console.log(threats)
+      threats['hisMoves'] = this.hisMoves
+      this.game.game_over()
+        ? (threats['end_game'] = this.game.game_over())
+        : (threats['end_game'] = false)
       this.$emit('onMove', threats)
     },
     countThreats (color) {
@@ -179,8 +199,9 @@ export default {
     loadPosition () { // set a default value for the configuration object itself to allow call to loadPosition()
     
       this.game.load(this.fen)
-      console.log(this.game.fen() + "ahihi")
+
     // this.board = Chessground(document.getElementById("board"), {
+      this.hisMoves = ''
       this.board = Chessground(this.$refs.board, {
         fen: this.game.fen(),
         turnColor: this.toColor(),
@@ -190,6 +211,7 @@ export default {
           dests: this.possibleMoves(),
         },
         orientation: this.orientation,
+        viewOnly: this.viewOnly
       })
       this.board.set({
         movable: { events: { after: this.changeTurn() } },
@@ -197,7 +219,7 @@ export default {
       this.afterMove()
     },
     loadMove() {
-      console.log(this.move)
+      this.hisMoves += ' ' + this.move
       this.game.move({from: this.move.substring(0,2), to: this.move.substring(2, 4), promotion: this.move.charAt(4)})
         this.board.set({
           fen: this.game.fen(),
@@ -206,7 +228,9 @@ export default {
             color: this.toColor(),
             dests: this.possibleMoves(),
           },
-        })  
+        }) 
+      this.calculatePromotions()
+      this.afterMove() 
     }
   },
   mounted () {
@@ -217,6 +241,7 @@ export default {
     this.board = null
     this.promotions = []
     this.promoteTo = 'q'
+    this.hisMoves = ''
   },
 }
 </script>
