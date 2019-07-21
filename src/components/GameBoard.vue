@@ -1,54 +1,64 @@
 <template>
   <v-layout>
     <v-flex xs6 offset-xs1>
-      <chessboard :viewOnly="viewOnly" :fen="currentFen" :move="move" @onMove="showInfo" />
+      <chessboard
+        :viewOnly="viewOnly"
+        :fen="currentFen"
+        :orientation="userColor"
+        :move="move"
+        @onMove="showInfo"
+      />
     </v-flex>
     <v-flex xs5 offset-xs1>
       <v-layout column class="justify-space-between">
         <v-layout row>
           <v-flex xs5>
-          <Player :time="botTime" />
-        </v-flex>
-        <v-btn :disabled="isStart" @click="startDialog = true" icon flat class="btn-start mt-2 ml-3">
-          <v-icon>add_circle</v-icon>
-        </v-btn>
+            <Player :time="botTime" />
+          </v-flex>
+          <v-btn
+            :disabled="isStart"
+            @click="startDialog = true"
+            icon
+            flat
+            class="btn-start mt-2 ml-3"
+          >
+            <v-icon>add_circle</v-icon>
+          </v-btn>
         </v-layout>
         <div class="move-history-content">
-            <div v-for="(item, index) in moveHistory" :key="index">
-                <div class="index">{{ item.index }}</div>
-                <div
-                  :id="item.whiteMove.moveCount"
-                  class="move"
-                >{{ item.whiteMove.move }}</div>
-                <div
-                  v-if="item.blackMove"
-                  :id="item.blackMove.moveCount"
-                  class="move"
-                >{{ item.blackMove.move }}</div>
+          <div v-for="(item, index) in moveHistory" :key="index">
+            <div class="index">{{ item.index }}</div>
+            <div :id="item.whiteMove.moveCount" class="move">{{ item.whiteMove.move }}</div>
+            <div
+              v-if="item.blackMove"
+              :id="item.blackMove.moveCount"
+              class="move"
+            >{{ item.blackMove.move }}</div>
           </div>
         </div>
         <div class="xs12 btn-group-move">
-            <v-btn flat>
-              <v-icon>fast_rewind</v-icon>
-            </v-btn>
-            <v-btn flat>
-              <v-icon>skip_previous</v-icon>
-            </v-btn>
-            <v-btn flat>
-              <v-icon>skip_next</v-icon>
-            </v-btn>
-            <v-btn flat>
-              <v-icon>fast_forward</v-icon>
-            </v-btn>
-          </div>
-        <div class="game-information mt-1 ">
+          <v-btn flat>
+            <v-icon>fast_rewind</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>skip_previous</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>skip_next</v-icon>
+          </v-btn>
+          <v-btn flat>
+            <v-icon>fast_forward</v-icon>
+          </v-btn>
+        </div>
+        <div class="game-information mt-1">
           <div class="game-information-item" v-for="(item, index) in gameHistory" :key="index">
-                <div class="game-details"
-                >Ván: {{ index + 1 }} - Bot: {{item.skillLevel}}:{{item.depth}} - {{item.color}} - Thời gian: {{item.time}}</div>
-                <div class="game-result" v-if="item.result !== null">{{item.result}}</div>
+            <div
+              class="game-details"
+            >Ván: {{ index + 1 }} - Bot: {{item.skillLevel}}:{{item.depth}} - {{item.color}} - Thời gian: {{item.time}}</div>
+            <div class="game-result" v-if="item.result !== null">{{item.result}}</div>
           </div>
         </div>
-          <v-flex xs6 mt-2>
+        <v-flex xs6 mt-2>
           <Player :time="playerTime" />
         </v-flex>
       </v-layout>
@@ -149,8 +159,8 @@
           </v-container>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat @click="startDialog = false">Đóng</v-btn>
-            <v-btn color="blue darken-1" flat @click="startGame">Bắt đầu</v-btn>
+            <v-btn color="indigo darken-1" flat @click="startDialog = false">Đóng</v-btn>
+            <v-btn color="indigo darken-1" class="white--text" @click="startGame">Bắt đầu</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -162,6 +172,8 @@
 import chessboard from "@/components/vue-chessboard/index";
 import Player from "@/components/PlayChess/Player";
 import { setInterval, clearInterval } from "timers";
+import {RepositoryFactory} from '@/repository/RepositoryFactory.js'
+const matchRepository = RepositoryFactory.get('match')
 export default {
   name: "GameBoard",
   components: {
@@ -192,74 +204,100 @@ export default {
       totalMove: 0,
       interval: null,
       currentGame: {},
-      turn: '',
-      userColor: ''
+      turn: "",
+      userColor: "white",
+      isPlayerWin: false,
+      currentGameResult: '',
+      pgn: ''
     };
   },
   watch: {
     turn: function(turn) {
-      this.turn = turn
-      clearInterval(this.interval)
+      this.turn = turn;
+      clearInterval(this.interval);
       if (this.turn != null) {
-        this.interval = setInterval(this.runClock, 1000)
+        this.interval = setInterval(this.runClock, 1000);
       }
       if (this.turn !== this.userColor && this.isStart) {
-        this.calculateMove()
+        this.calculateMove();
       }
-    },
+    }
   },
   updated() {
-    this.setCurrentMove()
+    this.setCurrentMove();
   },
   methods: {
     getFen(data) {
       console.log(data);
       this.testFen = data;
     },
-    showInfo(data) {
-      this.moves = data.hisMoves
-      const black = 'black'
-      let moveHistory = this.moveHistory
-      let newMove = data.history[data.history.length - 1]
-      let lastMove = moveHistory[moveHistory.length - 1]
-      if (newMove === undefined || !this.currentFen) return
-      if (data.end_game) {
-        this.isStart = false
+    async saveData() {
+      let timeArr = this.time.split(':')
+      let second = parseInt(timeArr[0]) * 3600 + parseInt(timeArr[1]) * 60 + parseInt(timeArr[2])
+      let data = {
+        botDepth: this.depth,
+        duration: second,
+        playerSideBlack: this.userColor === 'white' ? true : false,
+        portableGameNotation: this.pgn,
+        result: this.currentGameResult,
+        skillLevel: this.level
       }
-      this.turn = data.turn
-      this.totalMove++
+      const {result} = await matchRepository.createMatch(data)
+    },
+    showInfo(data) {
+      this.moves = data.hisMoves;
+      const black = "black";
+      let moveHistory = this.moveHistory;
+      let newMove = data.history[data.history.length - 1];
+      let lastMove = moveHistory[moveHistory.length - 1];
+      if (newMove === undefined || !this.currentFen) return;
+      if (data.end_game !== undefined) {
+        this.isStart = false;
+        if (data.end_game !== "draw") {
+          this.isPlayerWin = this.userColor === data.end_game ? false : true;
+          this.currentGame.result =
+            data.end_game === "white" ? "0 - 1" : "1 - 0";
+          this.currentGameResult = data.end_game === 'white' ? 'B' : 'W'
+        } else {
+          this.currentGame.result = "draw";
+          this.currentGameResult = 'D'
+        }
+        this.pgn = data.pgn
+        this.saveData()
+      }
+      this.turn = data.turn;
+      this.totalMove++;
       if (this.turn === black) {
         const newTurn = {
           index: moveHistory.length + 1,
           whiteMove: {
             move: newMove,
             fen: data.fen,
-            moveCount: 'move-' + this.totalMove
+            moveCount: "move-" + this.totalMove
           },
           blackMove: null
-        }
-        moveHistory.push(newTurn)
+        };
+        moveHistory.push(newTurn);
       } else {
         //nước đi tiếp theo của turn cũ
         lastMove.blackMove = {
           move: newMove,
           fen: data.fen,
-          moveCount: 'move-' + this.totalMove
-        }
+          moveCount: "move-" + this.totalMove
+        };
       }
-      this.currentMove = this.totalMove
-      console.log(data.fen)
+      this.currentMove = this.totalMove;
     },
     setCurrentMove() {
       //set highlight div dựa trên this.current move hiện tại
-      let arr = document.getElementsByClassName('move')
+      let arr = document.getElementsByClassName("move");
       if (arr != undefined && arr != null && arr.length !== 0) {
         Array.prototype.forEach.call(arr, function(move) {
-          move.classList.remove('current-move')
-        })
-        let currentMove = document.getElementById('move-' + this.currentMove)
-        currentMove.classList.add('current-move')
-        currentMove.parentNode.parentNode.scrollTop = currentMove.offsetTop
+          move.classList.remove("current-move");
+        });
+        let currentMove = document.getElementById("move-" + this.currentMove);
+        currentMove.classList.add("current-move");
+        currentMove.parentNode.parentNode.scrollTop = currentMove.offsetTop;
       }
     },
     loadFen(fen) {
@@ -283,10 +321,10 @@ export default {
     },
     startGame() {
       this.resetBoard();
-      this.turn = 'white';
+      this.turn = "white";
       switch (this.colorPicker) {
         case 0:
-          this.userColor = "white";
+          this.userColor = Math.random() === 0 ? 'white' : 'black';
           break;
         case 1:
           this.userColor = "white";
@@ -295,71 +333,71 @@ export default {
           this.userColor = "black";
           break;
       }
-      this.botTime = this.playerTime = this.time
-      this.startDialog = false
-      this.isStart = true
-      this.viewOnly = false
+      this.botTime = this.playerTime = this.time;
+      this.startDialog = false;
+      this.isStart = true;
+      this.viewOnly = false;
       this.interval = setInterval(this.runClock, 1000);
       this.currentGame = {
-        color: this.userColor === 'white' ? 'Trắng' : 'Đen',
+        color: this.userColor === "white" ? "Trắng" : "Đen",
         time: this.time,
         depth: this.depth,
         skillLevel: this.level,
         result: null
-      }
-      this.gameHistory.push(this.currentGame)
+      };
+      this.gameHistory.push(this.currentGame);
     },
     countDownTime(time) {
-      const timeArr = time.split(':')
+      const timeArr = time.split(":");
       let hour = parseInt(timeArr[0]),
         min = parseInt(timeArr[1]),
-        second = parseInt(timeArr[2])
+        second = parseInt(timeArr[2]);
       if (second != 0 || min != 0 || hour != 0) {
         if (second > 0) {
-          second--
+          second--;
         } else {
           if (min > 0) {
-            min--
-            second = 59
+            min--;
+            second = 59;
           } else {
             //hour > 0, min = 0
-            min = 59
-            hour--
-            second = 59
+            min = 59;
+            hour--;
+            second = 59;
           }
         }
       } else {
-        clearInterval(this.interval)
-        this.isStart = false
-        return '00:00:00'
+        clearInterval(this.interval);
+        this.isStart = false;
+        return "00:00:00";
       }
-      hour < 10 ? (hour = '0' + hour) : hour
-      min < 10 ? (min = '0' + min) : min
-      second < 10 ? (second = '0' + second) : second
-      return hour + ':' + min + ':' + second
+      hour < 10 ? (hour = "0" + hour) : hour;
+      min < 10 ? (min = "0" + min) : min;
+      second < 10 ? (second = "0" + second) : second;
+      return hour + ":" + min + ":" + second;
     },
     allowedHours: v => v >= 0 && v <= 12,
     allowedMinutes: v => v >= 1 && v <= 60,
     allowedSeconds: v => v >= 0 && v <= 60,
     sendUCI(str) {
-      this.engine.postMessage(str)
+      this.engine.postMessage(str);
     },
     calculateMove() {
-      let self = this
-      this.sendUCI('setoption name Skill Level value ' + this.level)
-      console.log(this.moves)
-      this.sendUCI('position startpos moves' + this.moves)
-      this.sendUCI('go depth ' + this.depth)
+      let self = this;
+      this.sendUCI("setoption name Skill Level value " + this.level);
+      console.log(this.moves);
+      this.sendUCI("position startpos moves" + this.moves);
+      this.sendUCI("go depth " + this.depth);
       this.engine.onmessage = function(event) {
-        console.log(event.data)
-        let line = event.data
-        if (event.data.indexOf('bestmove') > -1) {
-          let match = line.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/)
+        console.log(event.data);
+        let line = event.data;
+        if (event.data.indexOf("bestmove") > -1) {
+          let match = line.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
           match[3] == undefined
             ? (self.move = match[1] + match[2])
-            : (self.move = match[1] + match[2] + match[3])
+            : (self.move = match[1] + match[2] + match[3]);
         }
-      }
+      };
     }
   },
   created() {
@@ -370,8 +408,8 @@ export default {
     for (let i = 0; i < 20; i++) {
       this.tickLabels[i] = i + 1;
     }
-    this.engine = new Worker('stockfish.js')
-    this.sendUCI('uci')
+    this.engine = new Worker("stockfish.js");
+    this.sendUCI("uci");
   }
 };
 </script>

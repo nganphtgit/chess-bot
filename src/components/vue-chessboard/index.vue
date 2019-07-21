@@ -105,7 +105,6 @@ export default {
     },
     paintThreats () {
       let moves = this.game.moves({verbose: true})
-      console.log("bhihi")
       console.log(moves.length)
       let threats = []
       moves.forEach(function (move) {
@@ -136,7 +135,7 @@ export default {
     changeTurn () {
       return (orig, dest, metadata) => {
         this.hisMoves += ' ' + orig + dest
-        console.log("Change turm " + orig + "," + dest + "," + metadata)
+        console.log("Change turn " + orig + "," + dest + "," + metadata)
         if (this.isPromotion(orig, dest)) {
           this.promoteTo = this.onPromotion()
           this.hisMoves += this.promoteTo
@@ -160,12 +159,16 @@ export default {
         this.paintThreats()
       }
       let threats = this.countThreats(this.toColor()) || {}
+      threats['pgn'] = this.game.pgn()
       threats['history'] = this.game.history()
       threats['fen'] = this.game.fen()
       threats['hisMoves'] = this.hisMoves
-      this.game.game_over()
-        ? (threats['end_game'] = this.game.game_over())
-        : (threats['end_game'] = false)
+      if (this.game.game_over()) {
+        threats['end_game'] = this.toColor()
+      }
+      if (this.game.in_draw()) {
+        threats['end_game'] = 'draw'
+      }
       this.$emit('onMove', threats)
     },
     countThreats (color) {

@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "chess.js": "^0.10.2",
     "chessboardjs": "0.0.1",
     "chessground": "git+https://github.com/nganphtgit/chessground.git",

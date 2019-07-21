@@ -2,7 +2,7 @@
     <v-footer height="auto" color="#010721">
         <v-container class="py-2">
             <v-spacer></v-spacer>
-            <v-flex xs6 class="grey--text">&copy; Copyright by COLS Team and friends</v-flex>
+            <v-flex xs6 class="grey--text">&copy; <span class="yellow--text">2019</span> Team 1170, make with love <v-icon color="red">favorite</v-icon><v-icon color="red">favorite</v-icon></v-flex>
         </v-container>
     </v-footer>
 </template>
