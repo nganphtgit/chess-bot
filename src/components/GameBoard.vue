@@ -464,7 +464,7 @@ export default {
       "r4rk1/pp1b3p/6p1/8/3NpP2/1P4P1/P2K3P/R6R w - - 0 22"
     ];
     for (let i = 0; i < 20; i++) {
-      this.tickLabels[i] = i + 1;
+      this.tickLabels[i] = i + 1
     }
     this.engine = new Worker("stockfish.js");
     this.sendUCI("uci");

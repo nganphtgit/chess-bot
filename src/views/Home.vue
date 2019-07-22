@@ -1,23 +1,15 @@
 <template>
   <v-container>
-    <v-flex xs12>
-      <game-board></game-board>
-    <!-- <clock></clock>
-    <bot-level></bot-level> -->
-    </v-flex>
+    <GameBoard />
   </v-container>
 </template>
 
 <script>
-  import GameBoard from '../components/GameBoard' 
-  import Clock from '../components/Clock'
-  import BotLevel from '../components/BotLevel'
+  import GameBoard from '../components/GameBoard'
 
   export default {
     components: {
-      GameBoard,
-      Clock,
-      BotLevel
+      GameBoard
     }
   }
 </script>

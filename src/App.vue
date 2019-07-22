@@ -1,29 +1,23 @@
 <template>
-  <div>
+  <v-app>
     <Header/>
-    <div id="app">
-    <router-view />
-  </div>
-  <Footer/>
-  </div>
+    <router-view></router-view>
+    <Footer/>
+  </v-app>
 </template>
+
 <script>
-import Header from '@/components/Header.vue'
-import Footer from '@/components/Footer.vue'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 export default {
+  name: 'App',
   components: {
-    Header,
-    Footer
+    Header, Footer
+  },
+  data () {
+    return {
+      //
+    }
   }
 }
 </script>
-
-<style>
-  *, html {
-    margin: 0;
-    padding: 0;
-  }
-  .black, .white, .blue {
-    background-color: inherit !important;
-  }
-</style>
