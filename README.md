@@ -1,10 +1,10 @@
 # chess-bot
 
 ## Description
-An example of using [Stockfishjs](https://github.com/nmrugg/stockfish.js/) engine with Vue. The data of chess game will be saved to our database to support for data analysis, thank you <3  
+An example of using [Stockfishjs](https://github.com/nmrugg/stockfish.js/) engine with Vue. 
 Chessboard lib: [Vue-chessboard](https://github.com/vitogit/vue-chessboard)  
 Chess Engine: [Stockfishjs](https://github.com/nmrugg/stockfish.js/)  
-Live Demo [here](https://colsteam.ml/#/)  
+Live Demo [here](https://www.hideonbush.ga/#/)  
 ## Project setup
 ```
 npm install
