@@ -56,7 +56,7 @@
           <div class="game-information-item" v-for="(item, index) in gameHistory" :key="index">
             <div
               class="game-details"
-            >Ván: {{ index + 1 }} - Bot: {{item.skillLevel}}:{{item.depth}} - {{item.color}} - Thời gian: {{item.time}}</div>
+            >Game: {{ index + 1 }} - Bot: {{item.skillLevel}}:{{item.depth}} - {{item.color}} - Time: {{item.time}}</div>
             <div class="game-result" v-if="item.result !== null">{{item.result}}</div>
           </div>
         </div>
@@ -67,12 +67,12 @@
       <v-dialog v-model="startDialog" persistent max-width="600px">
         <v-card>
           <v-toolbar card>
-            <span class="headline">Ván đấu mới</span>
+            <span class="headline">New game</span>
           </v-toolbar>
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12>
-                <p class="font-weight-medium my-2">Cấp độ</p>
+                <p class="font-weight-medium my-2">Level</p>
                 <v-slider
                   v-model="level"
                   step="1"
@@ -87,7 +87,7 @@
                 ></v-slider>
               </v-flex>
               <v-flex xs12>
-                <p class="font-weight-medium my-2">Độ sâu</p>
+                <p class="font-weight-medium my-2">Depth</p>
                 <v-slider
                   v-model="depth"
                   step="1"
@@ -102,7 +102,7 @@
                 ></v-slider>
               </v-flex>
               <v-flex xs7>
-                <p class="font-weight-medium my-2">Chọn màu quân (mặc định ngẫu nhiên)</p>
+                <p class="font-weight-medium my-2">Color side (default: random)</p>
                 <v-btn-toggle v-model="colorPicker">
                   <v-btn :value="1" style="width: 100px" class="white king pick-color pa-1"></v-btn>
                   <v-btn :value="2" style="width: 100px" class="king black pick-color pa-1"></v-btn>
@@ -121,7 +121,7 @@
                   <template v-slot:activator="{ on }">
                     <v-text-field
                       v-model="time"
-                      label="Chọn thời gian đấu"
+                      label="Time"
                       prepend-icon="alarm"
                       readonly
                       v-on="on"
@@ -143,7 +143,7 @@
                     color="indigo"
                   >
                     <v-spacer></v-spacer>
-                    <v-btn flat color="primary" @click="timePicker = false">Đóng</v-btn>
+                    <v-btn flat color="primary" @click="timePicker = false">Close</v-btn>
                     <v-btn flat color="primary" @click="$refs.dialog.save(time)">OK</v-btn>
                   </v-time-picker>
                 </v-dialog>
@@ -161,8 +161,8 @@
           </v-container>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="indigo darken-1" flat @click="startDialog = false">Đóng</v-btn>
-            <v-btn color="indigo darken-1" class="white--text" @click="startGame">Bắt đầu</v-btn>
+            <v-btn color="indigo darken-1" flat @click="startDialog = false">Close</v-btn>
+            <v-btn color="indigo darken-1" class="white--text" @click="startGame">Start</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -221,6 +221,7 @@ export default {
       if (this.turn != null) {
         this.interval = setInterval(this.runClock, 1000);
       }
+      // bot's move
       if (this.turn !== this.userColor && this.isStart) {
         this.calculateMove();
       }
@@ -288,7 +289,7 @@ export default {
         };
         moveHistory.push(newTurn);
       } else {
-        //nước đi tiếp theo của turn cũ
+        // the next move of old turn
         lastMove.blackMove = {
           move: newMove,
           fen: data.fen,
@@ -298,7 +299,7 @@ export default {
       this.currentMove = this.totalMove;
     },
     setCurrentMove() {
-      //set highlight div dựa trên this.current move hiện tại
+      //set highlight div based on this.current move
       let arr = document.getElementsByClassName("move");
       if (arr != undefined && arr != null && arr.length !== 0) {
         Array.prototype.forEach.call(arr, function(move) {
@@ -344,7 +345,7 @@ export default {
       this.viewOnly = false;
       this.interval = setInterval(this.runClock, 1000);
       this.currentGame = {
-        color: this.userColor === "white" ? "Trắng" : "Đen",
+        color: this.userColor === "white" ? "White" : "Black",
         time: this.time,
         depth: this.depth,
         skillLevel: this.level,
